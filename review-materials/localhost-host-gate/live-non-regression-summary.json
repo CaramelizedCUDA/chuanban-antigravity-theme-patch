@@ -1,0 +1,187 @@
+{
+  "schema": "chuanban-antigravity-theme-patch/live-non-regression-summary/v1",
+  "targetBaseline": "v5.3.0@6a263b5",
+  "testedBranch": "fix/localhost-guest-host-gate",
+  "environment": {
+    "os": "win32",
+    "nodeVersion": "v22.22.2",
+    "channel": "stable",
+    "builtInBrowserGuestTabKeptOpen": "http://127.0.0.1:4173/"
+  },
+  "beforeAfterScreenshots": {
+    "before": [
+      {
+        "file": "before-v530-repro-4179.png",
+        "bytes": 26229,
+        "dimensions": "1024x640"
+      },
+      {
+        "file": "before-v530-blog-home.png",
+        "bytes": 367633,
+        "dimensions": "1024x750"
+      },
+      {
+        "file": "before-v530-blog-archive.png",
+        "bytes": 471200,
+        "dimensions": "1024x750"
+      }
+    ],
+    "after": [
+      {
+        "file": "after-repro-4179.png",
+        "bytes": 27938,
+        "dimensions": "1024x750"
+      },
+      {
+        "file": "after-blog-home-warm.png",
+        "bytes": 391450,
+        "dimensions": "1024x750"
+      },
+      {
+        "file": "after-blog-archive-warm.png",
+        "bytes": 488151,
+        "dimensions": "1024x750"
+      },
+      {
+        "file": "after-blog-home-night.png",
+        "bytes": 318035,
+        "dimensions": "1024x750"
+      }
+    ]
+  },
+  "nonRegressionMatrix": {
+    "item1_presetHotReload": {
+      "passed": true,
+      "guestTabOpenDuringChecks": true,
+      "steps": [
+        {
+          "command": "node install.mjs doctor",
+          "configuredPreset": "high-contrast",
+          "customCss": false,
+          "customJs": false,
+          "liveTargetTitle": "<antigravity-main-window>",
+          "version": "20261115-v5.3.0-stable-4570523a",
+          "observedPreset": "high-contrast",
+          "hasStyle": true,
+          "hasUserStyle": false
+        },
+        {
+          "command": "node install.mjs doctor",
+          "configuredPreset": "claude-desktop-purewhite",
+          "hotReloadWaitMs": 3800,
+          "liveTargetTitle": "<antigravity-main-window>",
+          "version": "20261115-v5.3.0-stable-0c0f0ba4",
+          "observedPreset": "claude-desktop-purewhite",
+          "hasStyle": true,
+          "hasUserStyle": false
+        },
+        {
+          "command": "node install.mjs doctor",
+          "configuredPreset": "vintage-deep",
+          "hotReloadWaitMs": 3800,
+          "liveTargetTitle": "<antigravity-main-window>",
+          "version": "20261115-v5.3.0-stable-d7faeb7c",
+          "observedPreset": "vintage-deep",
+          "hasStyle": true,
+          "hasUserStyle": false
+        },
+        {
+          "command": "node install.mjs verify",
+          "configuredPreset": "high-contrast",
+          "customCss": true,
+          "customJs": true,
+          "hotReloadWaitMs": 3800,
+          "ok": true,
+          "themeStyle": true,
+          "liveTargetTitle": "<antigravity-main-window>",
+          "version": "20261115-v5.3.0-stable-0557f044",
+          "observedPreset": "high-contrast",
+          "hasStyle": true,
+          "hasUserStyle": true
+        }
+      ]
+    },
+    "item2_mainWindowStateAndDoctorSelection": {
+      "passed": true,
+      "skippedGuest1270014173": true,
+      "liveTargetTitle": "<antigravity-main-window>",
+      "bodyReady": true,
+      "waxSeal": "on",
+      "dictCountNormal": 1741,
+      "dictCountSafeMode": 1740,
+      "protoSafe": true,
+      "themeMode": "dark",
+      "pageType": "chat"
+    },
+    "item3_swarmIframePreserved": {
+      "passed": true,
+      "targetPattern": "plugin://swarm--swarm_board-<redacted>/",
+      "injectedVersionsObservedInDaemonLog": [
+        "20261115-v5.3.0-stable-4570523a",
+        "20261115-v5.3.0-stable-0c0f0ba4",
+        "20261115-v5.3.0-stable-d7faeb7c",
+        "20261115-v5.3.0-stable-0557f044"
+      ],
+      "repeated15sGuestHeartbeatLogs": 0
+    },
+    "item4_liveMetricsCapsule": {
+      "passed": true,
+      "pillMounted": true,
+      "samplePillTexts": [
+        "5 tok/s·Hold 10.9s·Ctx 221k/512k (43%)·Out 53·+11 sub",
+        "9 tok/s·Hold 13.1s·Ctx 242k/512k (47%)·Out 122·+11 sub"
+      ]
+    },
+    "item5_safeModeAndRestore": {
+      "passed": true,
+      "safeModeVerify": {
+        "command": "node install.mjs verify --safe-mode",
+        "ok": true,
+        "safeMode": true,
+        "themeStyle": true,
+        "version": "20261115-v5.3.0-stable-407f9c39",
+        "hasStyle": true,
+        "hasUserStyle": false,
+        "dictCount": 1740
+      },
+      "restoredVerifyAfterWait": {
+        "command": "node install.mjs verify",
+        "waitMs": 3800,
+        "ok": true,
+        "safeMode": false,
+        "themeStyle": true,
+        "version": "20261115-v5.3.0-stable-0557f044",
+        "preset": "high-contrast",
+        "hasStyle": true,
+        "hasUserStyle": true,
+        "dictCount": 1741
+      },
+      "restoredUserConfigSha256": "2F9C1F6C12AF927D4DEE6FF97B7B084A1A527EBCDD13DEDED88010E810D41AE9",
+      "sha256MatchesOriginal": true
+    },
+    "item6_coreIntegrityPackAndServiceCleanup": {
+      "passed": true,
+      "coreIntegrityClean": true,
+      "modifiedFiles": [],
+      "installServiceInfo": {
+        "platform": "win32",
+        "autostartMethod": "registry-run",
+        "serviceFile": "~/.gemini/antigravity/theme-patch/AntigravityThemeDaemon.vbs",
+        "localVbsFile": "~/.gemini/antigravity/theme-patch/AntigravityThemeDaemon.vbs",
+        "scheduledTask": null,
+        "taskSettingsUpdated": false,
+        "scheduledTaskStarted": false,
+        "runningNow": true
+      },
+      "packCheck": {
+        "command": "node install.mjs pack",
+        "archiveName": "chuanban-antigravity-theme-patch-v5.3.0.zip",
+        "bytes": 2329851,
+        "verifiedCoreFiles": 4,
+        "distCleanedUp": true,
+        "repoGitStatusCleanExcept6FixFiles": true
+      },
+      "tempServerPort4179Released": true
+    }
+  }
+}

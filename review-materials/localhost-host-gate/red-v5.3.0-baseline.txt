@@ -1,0 +1,13 @@
+Mock CDP Host Gate Suite | repo=../v530-baseline | node=v22.22.2 | cases=11
+FAIL [guest.localhost_non_host_blocked] (375ms) expected 0 Runtime.addBinding, got 2
+FAIL [guest.decoy_main_js_and_generic_app_config] (406ms) expected 0 bindings, got 2
+FAIL [runtime.newdoc_null_document_element] (9ms) Host null documentElement threw TypeError: Cannot read properties of null (reading 'setAttribute') (core/runtime.js:502 |   document.documentElement.setAttribute('data-ag-wax-seal', MODULES.composerWaxSeal === false ? 'off' : 'on');)
+FAIL [guest.loading_then_domcontentloaded_non_host] (364ms) unexpected eval exception during loading: Cannot read properties of null (reading 'setAttribute')
+FAIL [guest.heartbeat_zero_reattach] (156ms) expected 0 inject on tick 1, got 1
+FAIL [guest.same_tab_port_switch_and_external] (183ms) tabA tick 1 must have 0 inject (got 1)
+FAIL [host.main_window_cold_boot_preserved] (268ms) NewDocument cold-boot threw TypeError: Cannot read properties of null (reading 'setAttribute')
+PASS [host.dev_url_mode_preserved] (166ms) DEV_URL with electronNative+nativeStorage recognized as host, bindings + theme injected
+PASS [host.swarm_iframe_preserved] (159ms) plugin://swarm--* iframe exempted, #ag-custom-fonts & SWARM_FRAME_ONLY_DICT applied
+PASS [host.vscode_file_preserved] (159ms) vscode-file:// exempted & injected normally
+FAIL [cli.verify_picks_host_over_guest] (426ms) doctor picked target=target-guest-0 (hasStyle=false) instead of target-host-1 | verify picked target=target-guest-0 (ok=true, themeStyle=true) instead of target-host-1 | verify daemon --once polluted pages[0] guest (fullInjectCount=1)
+SUMMARY: 3/11 PASS, 8 FAIL

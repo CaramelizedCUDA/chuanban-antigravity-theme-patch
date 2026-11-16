@@ -1,0 +1,13 @@
+Mock CDP Host Gate Suite | repo=../fork-repo | node=v22.22.2 | cases=11
+PASS [guest.localhost_non_host_blocked] (325ms) 0 bindings / 0 NewDocument / 0 inject / probe=non_host -> WS closed
+PASS [guest.decoy_main_js_and_generic_app_config] (310ms) rejected /main.js + #root + productName=my-app decoy, 0 injection
+PASS [runtime.newdoc_null_document_element] (13ms) 0 exceptions when documentElement=null; DCL deferred -> host injected, non-host marked __ag_skip_non_host=true
+PASS [guest.loading_then_domcontentloaded_non_host] (3135ms) pending while loading -> non_host after DCL -> NewDocument clear / WS closed / 0 inject
+PASS [guest.heartbeat_zero_reattach] (15691ms) 7 sync ticks in 15.7s (<30s): delta WS=0, inject=0
+PASS [guest.same_tab_port_switch_and_external] (5402ms) via-external (:4173->example.com->:5173) & direct (:4173->:5173) re-probed & skipped cleanly, 0 inject
+PASS [host.main_window_cold_boot_preserved] (287ms) 0 exceptions on cold boot; bindings + NewDocument + #ag-custom-fonts + data-ag-* injected
+PASS [host.dev_url_mode_preserved] (158ms) DEV_URL with electronNative+nativeStorage recognized as host, bindings + theme injected
+PASS [host.swarm_iframe_preserved] (156ms) plugin://swarm--* iframe exempted, #ag-custom-fonts & SWARM_FRAME_ONLY_DICT applied
+PASS [host.vscode_file_preserved] (169ms) vscode-file:// exempted & injected normally
+PASS [cli.verify_picks_host_over_guest] (424ms) doctor & verify skipped pages[0] guest -> selected pages[1] host (ok=true, themeStyle=true)
+SUMMARY: 11/11 PASS, 0 FAIL
