@@ -17,7 +17,12 @@ This directory archives reproducible test evidence and redacted Antigravity `2.3
   10. `core/theme.css` multi-pane selectors & `core/manifest.json` 4/4 SHA-256 + byte-size parity
 - `test-output.txt`: Captured TAP output from running `node --test review-materials/split-pane-live-metrics/split-pane-metrics.test.mjs` (`10/10` passing).
 - `live-4pane-cdp-summary.json`: Sanitized read-only CDP DOM verification snapshot taken against live Antigravity `2.32.1` with 4 open split panes (`754px` wide panes in `middle` row mode and `377px` narrow panes automatically wrapped to `bottom` row mode, `textClientWidth === textScrollWidth`).
-- `screenshots/`: Redacted screenshots (`before-v542-2pane.png`, `before-v542-3pane.png`, `after-4pane-wrapped.png`) with chat bodies, private paths, pane titles, and desktop overlays blurred while keeping split dividers, composer bars, pills, and tooltip sharp.
+- `screenshots/`: Redacted screenshots with chat bodies, private paths, pane titles, and desktop overlays blurred while keeping split dividers, composer bars, pills, and tooltip sharp:
+  - `before-v542-2pane.png`: Before (`v5.4.2`) 2-pane split — left pane shows pill + `#ag-live-metrics-tooltip`, right pane missing pill.
+  - `before-v542-3pane.png`: Before (`v5.4.2`) 3-pane 2D nested split — top-left pill truncated with `...`, bottom-left & right panes missing pills.
+  - `after-4pane-wrapped.png`: After (`a5cde5a`) 4-pane 2D nested split — all 4 panes independently mounted; wide `754px` panes in `middle` row, narrow `377px` panes wrapped cleanly into `bottom` row with `+4 sub` unclipped.
+  - `before-side-question-btw.png`: Before (`a5cde5a`) main chat + `支线提问` (`/btw`) side-question pane — main composer displays metrics pill while `/btw` side-question composer lacks a pill.
+  - `after-side-question-btw.png`: After (`dc266bb`) main chat + `支线提问` (`/btw`) side-question pane — both main chat (`bottom` row) and `/btw` (`middle` row) display independent, unclipped live metrics pills.
 
 ## Running Locally
 
