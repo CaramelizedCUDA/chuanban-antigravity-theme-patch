@@ -2,57 +2,69 @@ TAP version 13
 # Subtest: 2-pane & 3-pane split mounts independent pills, tooltips, and unique \#ag-live-metrics-pill
 ok 1 - 2-pane & 3-pane split mounts independent pills, tooltips, and unique \#ag-live-metrics-pill
   ---
-  duration_ms: 13.842
+  duration_ms: 23.5701
   type: 'test'
   ...
 # Subtest: mixed chat + home split isolates home pane without inheriting chat UUID
 ok 2 - mixed chat + home split isolates home pane without inheriting chat UUID
   ---
-  duration_ms: 3.2947
+  duration_ms: 7.2986
   type: 'test'
   ...
 # Subtest: narrow split pane dynamically wraps to bottom when availMiddleW < neededPillW and avoids hysteresis oscillation
 ok 3 - narrow split pane dynamically wraps to bottom when availMiddleW < neededPillW and avoids hysteresis oscillation
   ---
-  duration_ms: 3.1322
+  duration_ms: 5.0552
   type: 'test'
   ...
 # Subtest: !ENABLED cleanup and hot-reload stale pill eviction clean all instances and observers
 ok 4 - !ENABLED cleanup and hot-reload stale pill eviction clean all instances and observers
   ---
-  duration_ms: 14.4268
+  duration_ms: 24.5201
   type: 'test'
   ...
 # Subtest: daemon.mjs normalizeCascadeIdList & parseMetricsSubscriptionPayload handle single, array, empty, encoded & capped lists
 ok 5 - daemon.mjs normalizeCascadeIdList & parseMetricsSubscriptionPayload handle single, array, empty, encoded & capped lists
   ---
-  duration_ms: 1.7161
+  duration_ms: 3.9599
   type: 'test'
   ...
 # Subtest: recreated pane B restores cached metrics during another pane update & clears uncached navigation
 ok 6 - recreated pane B restores cached metrics during another pane update & clears uncached navigation
   ---
-  duration_ms: 4.1562
+  duration_ms: 8.018
   type: 'test'
   ...
 # Subtest: same-version reinjection keeps hover tooltip synchronized on retained pills
 ok 7 - same-version reinjection keeps hover tooltip synchronized on retained pills
   ---
-  duration_ms: 7.3103
+  duration_ms: 13.6731
+  type: 'test'
+  ...
+# Subtest: side-question (/btw) sibling DOM & strip fallback mount independent pills while blank draft stays hidden and tab click re-checks route
+ok 8 - side-question (/btw) sibling DOM & strip fallback mount independent pills while blank draft stays hidden and tab click re-checks route
+  ---
+  duration_ms: 12.9412
+  type: 'test'
+  ...
+# Subtest: daemon.mjs fallback expression & runtime extractAllPathnameCascadeIds extract ?tab=side_question__, side-question-tab-conversation & data-active-tab-id
+ok 9 - daemon.mjs fallback expression & runtime extractAllPathnameCascadeIds extract ?tab=side_question__, side-question-tab-conversation & data-active-tab-id
+  ---
+  duration_ms: 6.8304
   type: 'test'
   ...
 # Subtest: core/theme.css and core/manifest.json multi-pane selectors & SHA-256 hashes stay synced
-ok 8 - core/theme.css and core/manifest.json multi-pane selectors & SHA-256 hashes stay synced
+ok 10 - core/theme.css and core/manifest.json multi-pane selectors & SHA-256 hashes stay synced
   ---
-  duration_ms: 2.1751
+  duration_ms: 4.172
   type: 'test'
   ...
-1..8
-# tests 8
+1..10
+# tests 10
 # suites 0
-# pass 8
+# pass 10
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 155.3564
+# duration_ms 272.1049

@@ -413,6 +413,7 @@ function createDomHarness({ url = 'https://127.0.0.1:8377/', cssText = '' } = {}
     }
   }
 
+  const pendingTimeouts = [];
   const win = {
     document: doc,
     location: {
@@ -466,10 +467,14 @@ function createDomHarness({ url = 'https://127.0.0.1:8377/', cssText = '' } = {}
     cancelAnimationFrame() {},
     setTimeout(fn) {
       const id = nextTimerId++;
+      pendingTimeouts.push({ id, fn });
       if (intervals.get('runTimersSync')) fn();
       return id;
     },
-    clearTimeout() {},
+    clearTimeout(id) {
+      const idx = pendingTimeouts.findIndex((t) => t.id === id);
+      if (idx !== -1) pendingTimeouts.splice(idx, 1);
+    },
     setInterval(fn) {
       const id = nextTimerId++;
       intervals.set(id, fn);
@@ -571,6 +576,11 @@ function createDomHarness({ url = 'https://127.0.0.1:8377/', cssText = '' } = {}
     },
     runBoot,
     createPane,
+    flushTimers() {
+      const batch = pendingTimeouts.splice(0, pendingTimeouts.length);
+      for (const item of batch) item.fn();
+      return batch.length;
+    },
     MiniElement
   };
 }
@@ -890,6 +900,206 @@ test('same-version reinjection keeps hover tooltip synchronized on retained pill
   assert.equal(originalPill.textContent, 'A-new');
   originalPill.dispatchEvent({ type: 'mouseenter' });
   assert.equal(h.doc.getElementById('ag-live-metrics-tooltip').innerHTML, '<div>Tooltip A-new</div>');
+});
+
+test('side-question (/btw) sibling DOM & strip fallback mount independent pills while blank draft stays hidden and tab click re-checks route', () => {
+  const mainCid = '11111111-1111-4111-8111-111111111111';
+  const sideCid = '44444444-4444-4444-8444-444444444444';
+  const sideCid2 = '55555555-5555-4555-8555-555555555555';
+
+  const buildSideBox = (h, { sideConvCid = '', activeTabId = '', rowW = 754 } = {}) => {
+    const auxSplit = new h.MiniElement('div');
+    auxSplit.setAttribute('data-testid', 'aux-pane-split');
+
+    const strip = new h.MiniElement('div');
+    strip.setAttribute('data-side-panel-strip', '1');
+    if (activeTabId) strip.setAttribute('data-active-tab-id', activeTabId);
+    const tabBtn = new h.MiniElement('button');
+    tabBtn.setAttribute('data-tab-id', activeTabId || 'new_side_question');
+    const tabLabel = new h.MiniElement('span');
+    strip.appendChild(tabBtn);
+    tabBtn.appendChild(tabLabel);
+    auxSplit.appendChild(strip);
+
+    const content = new h.MiniElement('div');
+    content.setAttribute('data-testid', 'side-question-tab-content');
+    auxSplit.appendChild(content);
+
+    let sideConv = null;
+    if (sideConvCid) {
+      sideConv = new h.MiniElement('div');
+      sideConv.setAttribute('data-testid', 'side-question-tab-conversation');
+      sideConv.setAttribute('data-cascade-id', sideConvCid);
+      content.appendChild(sideConv);
+    }
+
+    const composerWrap = new h.MiniElement('div');
+    composerWrap.setAttribute('data-testid', 'side-question-tab-composer');
+    composerWrap.setAttribute('data-side-panel-composer', '1');
+    const box = new h.MiniElement('div');
+    box.id = 'antigravity.agentSidePanelInputBox';
+    const card = new h.MiniElement('div');
+    card.className = 'surface-composer-card';
+    const footer = new h.MiniElement('div');
+    footer.className = 'agy-composer-footer';
+    footer.clientWidth = rowW;
+    const leftGroup = new h.MiniElement('div');
+    const chip = new h.MiniElement('div');
+    chip.offsetWidth = 147;
+    chip.scrollWidth = 147;
+    leftGroup.appendChild(chip);
+    const rightGroup = new h.MiniElement('div');
+    rightGroup.offsetWidth = 159;
+    footer.appendChild(leftGroup);
+    footer.appendChild(rightGroup);
+    card.appendChild(footer);
+    box.appendChild(card);
+    composerWrap.appendChild(box);
+    content.appendChild(composerWrap);
+
+    h.body.appendChild(auxSplit);
+    return { auxSplit, strip, tabBtn, tabLabel, content, sideConv, composerWrap, box, footer };
+  };
+
+  // Case A: main pane + active /btw sibling DOM layout
+  const h = createDomHarness({
+    url: `https://127.0.0.1:8377/c/${mainCid}?tab=side_question__${sideCid}`
+  });
+  const pMain = h.createPane({ paneId: 'pane-1', cascadeId: mainCid, focused: true, rowW: 394 });
+  const side = buildSideBox(h, { sideConvCid: sideCid, activeTabId: `side_question__${sideCid}` });
+
+  h.runBoot();
+  assert.deepEqual(JSON.parse(h.requests[h.requests.length - 1]), [mainCid, sideCid]);
+
+  h.win.__ag_render_metrics({
+    cascadeId: mainCid,
+    hasData: true,
+    inlineHtml: '<span>Main Metrics</span>',
+    tooltipHtml: '<div>Tip Main</div>'
+  });
+  h.win.__ag_render_metrics({
+    cascadeId: sideCid,
+    hasData: true,
+    inlineHtml: '<span>Side Metrics</span>',
+    tooltipHtml: '<div>Tip Side</div>'
+  });
+
+  const mainPill = pMain.box.querySelector('[data-ag-metrics-pill="1"]');
+  const sidePill = side.box.querySelector('[data-ag-metrics-pill="1"]');
+  assert.ok(mainPill && sidePill);
+  assert.equal(h.doc.querySelectorAll('#ag-live-metrics-pill').length, 1);
+  assert.equal(mainPill.id, 'ag-live-metrics-pill');
+  assert.equal(sidePill.id, '');
+  assert.equal(sidePill.getAttribute('data-ag-cascade-id'), sideCid);
+  assert.equal(mainPill.style.display, 'inline-flex');
+  assert.equal(sidePill.style.display, 'inline-flex');
+  assert.equal(mainPill.textContent, 'Main Metrics');
+  assert.equal(sidePill.textContent, 'Side Metrics');
+
+  // Switch side-question tab via [data-active-tab-id] strip fallback + click listener on [data-tab-id]
+  if (side.sideConv) side.sideConv.remove();
+  side.strip.setAttribute('data-active-tab-id', `side_question__${sideCid2}`);
+  h.flushTimers();
+  h.doc.dispatchEvent({ type: 'click', target: side.tabLabel });
+  assert.ok(h.flushTimers() >= 1, 'clicking [data-tab-id] descendant schedules route re-check');
+  assert.deepEqual(JSON.parse(h.requests[h.requests.length - 1]), [mainCid, sideCid2]);
+  assert.equal(sidePill.getAttribute('data-ag-cascade-id'), sideCid2);
+  assert.equal(sidePill.style.display, 'none');
+
+  h.win.__ag_render_metrics({
+    cascadeId: sideCid2,
+    hasData: true,
+    inlineHtml: '<span>Side Tab 2</span>',
+    tooltipHtml: '<div>Tip Side 2</div>'
+  });
+  assert.equal(sidePill.style.display, 'inline-flex');
+  assert.equal(sidePill.textContent, 'Side Tab 2');
+
+  // Case B: blank unsent /btw composer (even when totalBoxes === 1) must NOT inherit mainCid from URL
+  const hBlank = createDomHarness({
+    url: `https://127.0.0.1:8377/c/${mainCid}`
+  });
+  const blankSide = buildSideBox(hBlank, { sideConvCid: '', activeTabId: 'side_question__draft' });
+  hBlank.runBoot();
+  hBlank.win.__ag_render_metrics({
+    cascadeId: mainCid,
+    hasData: true,
+    inlineHtml: '<span>Parent Leak Check</span>',
+    tooltipHtml: '<div>Should Not Show</div>'
+  });
+  const blankPill = blankSide.box.querySelector('[data-ag-metrics-pill="1"]');
+  assert.ok(blankPill);
+  assert.equal(blankPill.getAttribute('data-ag-cascade-id'), null);
+  assert.equal(blankPill.style.display, 'none');
+  assert.equal(blankPill.textContent, '');
+});
+
+test('daemon.mjs fallback expression & runtime extractAllPathnameCascadeIds extract ?tab=side_question__, side-question-tab-conversation & data-active-tab-id', () => {
+  const mainCid = '11111111-1111-4111-8111-111111111111';
+  const sideCid = '44444444-4444-4444-8444-444444444444';
+  const sideCid3 = '66666666-6666-4666-8666-666666666666';
+
+  // 1. Runtime early-boot 0-box fallback includes ?tab=side_question__<uuid>
+  const hZero = createDomHarness({
+    url: `https://127.0.0.1:8377/c/${mainCid}?tab=side_question__${sideCid.toUpperCase()}`
+  });
+  hZero.runBoot();
+  assert.deepEqual(JSON.parse(hZero.requests[hZero.requests.length - 1]), [mainCid, sideCid]);
+
+  // 2. Daemon fallback Runtime.evaluate expression extraction
+  const daemonSrc = fs.readFileSync(DAEMON_PATH, 'utf8');
+  const marker = 'const syncMetricsForSession = async';
+  const syncStart = daemonSrc.indexOf(marker);
+  const exprStart = daemonSrc.indexOf('expression: `(function(){', syncStart);
+  const exprEnd = daemonSrc.indexOf('returnByValue: true', exprStart);
+  assert.ok(exprStart !== -1 && exprEnd > exprStart, 'daemon fallback expression must exist');
+  const rawTemplate = daemonSrc.slice(exprStart + 'expression: `'.length, exprEnd);
+  const closeTick = rawTemplate.lastIndexOf('`');
+  const exprSrc = rawTemplate.slice(0, closeTick).replace(/\\\\/g, '\\');
+
+  const makeMockDoc = (selectorMap) => ({
+    querySelectorAll(sel) {
+      return selectorMap[sel] || [];
+    }
+  });
+
+  // 2a. With DOM nodes + URL ?tab=side_question__<uuid>
+  const ctxDom = vm.createContext({
+    URLSearchParams,
+    window: {
+      location: {
+        pathname: `/c/${mainCid}`,
+        search: `?tab=side_question__${sideCid}`
+      }
+    },
+    document: makeMockDoc({
+      '[data-testid="conversation-view"][data-cascade-id], [data-testid="side-question-tab-conversation"][data-cascade-id]':
+        [
+          { getAttribute: () => mainCid },
+          { getAttribute: () => sideCid }
+        ],
+      '[data-active-tab-id^="side_question__"]': [
+        { getAttribute: () => `side_question__${sideCid3}` }
+      ],
+      '[data-testid=conversation-row-sidebar][data-selected=true]': []
+    })
+  });
+  const resDom = JSON.parse(JSON.stringify(vm.runInContext(exprSrc, ctxDom)));
+  assert.deepEqual(resDom, [mainCid, sideCid, sideCid3]);
+
+  // 2b. Early-boot with empty DOM extracts both main & side UUIDs from URL
+  const ctxUrlOnly = vm.createContext({
+    URLSearchParams,
+    window: {
+      location: {
+        pathname: `/c/${mainCid}`,
+        search: `?tab=side_question__${sideCid.toUpperCase()}`
+      }
+    },
+    document: makeMockDoc({})
+  });
+  const resUrlOnly = JSON.parse(JSON.stringify(vm.runInContext(exprSrc, ctxUrlOnly)));
+  assert.deepEqual(resUrlOnly, [mainCid, sideCid]);
 });
 
 test('core/theme.css and core/manifest.json multi-pane selectors & SHA-256 hashes stay synced', () => {
